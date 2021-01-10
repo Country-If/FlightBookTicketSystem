@@ -43,22 +43,6 @@ int judge_int(void)
 	return num;
 }
 
-/* 初始化订单结点 */
-Status Init_clientList(clientList* c)
-{
-	/**c = (clientList)malloc(sizeof(clientNode));
-	if ((*c) == NULL)
-	{
-		printf("内存分配失败\n");
-		system("pause");
-		exit(0);
-	}
-	(*c)->next = NULL;
-	(*c)->prior = NULL;*/
-	*c = NULL;
-	return ok;
-}
-
 /* 创建客户订单结点 */
 clientList Creat_clientNode(char name[MAXSIZE], int amount, int rank)
 {
@@ -164,20 +148,20 @@ Status Delete_clientList(clientList* total, clientList* c, int amount)
 	return ok;
 }
 
-/* 初始化队列 */
-Status Init_waitQueue(waitQueuePtr q)
-{
-	q = (waitQueuePtr)malloc(sizeof(waitQueue));
-	if (q == NULL)
-	{
-		printf("内存分配失败\n");
-		system("pause");
-		exit(0);
-	}
-	q->front = NULL;
-	q->rear = NULL;
-	return ok;
-}
+///* 初始化队列 */
+//Status Init_waitQueue(waitQueue* q)
+//{
+//	q = (waitQueue*)malloc(sizeof(waitQueue));
+//	if (q == NULL)
+//	{
+//		printf("内存分配失败\n");
+//		system("pause");
+//		exit(0);
+//	}
+//	q->front = NULL;
+//	q->rear = NULL;
+//	return ok;
+//}
 
 /* 入队 */
 Status En_waitQueue(waitQueue* wqueue, char name[MINSIZE], int amount)
@@ -192,7 +176,7 @@ Status En_waitQueue(waitQueue* wqueue, char name[MINSIZE], int amount)
 	strcpy(ptr->name, name);
 	ptr->amount = amount;
 	ptr->next = NULL;
-	if (wqueue->front == wqueue->rear)
+	if (wqueue->front == NULL)
 	{
 		wqueue->front = ptr;
 		wqueue->rear = ptr;
@@ -254,6 +238,9 @@ Status De_waitQueue(waitQueue* wqueue, waitPtr de)
 	return ok;
 }
 
+/* 遍历队列 */
+
+
 /* 初始化(航班总信息)单链表 */
 Status Init_Flight(FlightList* f)
 {
@@ -271,7 +258,6 @@ Status Init_Flight(FlightList* f)
 	(*f)->num = 0;
 	(*f)->tickets = 0;
 	(*f)->next = NULL;
-	Init_clientList(&(*f)->clist);
 	return ok;
 }
 
@@ -292,7 +278,9 @@ FlightList Creat_Flight(char* des, char* fid, char* pid, char* time, int num, in
 	fl->num = num;
 	fl->tickets = tickets;
 	fl->clist = NULL;
-	Init_waitQueue(&(fl->wqueue));
+	//Init_waitQueue(&(fl->wqueue));
+	fl->wqueue.front = NULL;
+	fl->wqueue.rear = NULL;
 	fl->next = NULL;
 	return fl;
 }
@@ -441,7 +429,7 @@ int BookTicket(FlightList* flight)
 			flag = 1;
 			if (p->tickets >= amount)
 			{
-				booking(flight, amount);
+				booking(&p, amount);
 			}
 			else if (p->tickets == 0)
 			{
@@ -457,7 +445,7 @@ int BookTicket(FlightList* flight)
 						char name[MAXSIZE] = { 0 };
 						printf("\n请输入您的名字：");
 						scanf("%s", name);
-						if (En_waitQueue(&((*flight)->wqueue), name, amount))
+						if (En_waitQueue(&(p->wqueue), name, amount))
 						{
 							printf("已添加至候补队列\n");
 						}
@@ -491,7 +479,7 @@ int BookTicket(FlightList* flight)
 						char name[MAXSIZE] = { 0 };
 						printf("\n请输入您的名字：");
 						scanf("%s", name);
-						if (En_waitQueue(&((*flight)->wqueue), name, amount))
+						if (En_waitQueue(&(p->wqueue), name, amount))
 						{
 							printf("已添加至候补队列\n");
 						}
@@ -554,8 +542,11 @@ void update_queue(FlightList* f, int amount)
 	{
 		if (pw->amount <= amount)
 		{
-			De_waitQueue(&(*f)->wqueue, pw);
-			booking_wait(f, pw->amount, pw->name);
+			int waitamount = pw->amount;
+			char waitname[MAXSIZE] = { 0 };
+			strcpy(waitname, pw->name);
+			De_waitQueue(&((*f)->wqueue), pw);
+			booking_wait(f, waitamount, waitname);
 			break;
 		}
 		pw = pw->next;
@@ -583,25 +574,25 @@ int RefundTicket(FlightList* flight)
 	scanf("%d", &amount);
 	FlightList p = *flight;
 	int flag = 0;
-	clientList total = NULL;
+	clientList pc = NULL;
 	while (p != NULL)
 	{
 		if (strcmp(p->flightID, flightID) == 0)
 		{
-			total = p->clist;
-			while (total != NULL)
+			pc = p->clist;
+			while (pc != NULL)
 			{
-				if (strcmp(total->name, name) == 0)
+				if (strcmp(pc->name, name) == 0)
 				{
 					flag = 1;
-					if (total->amount >= amount) //退票量小于订票量
+					if (pc->amount >= amount) //退票量小于订票量
 					{
 						p->tickets += amount;
-						Delete_clientList(&((*flight)->clist), &total, amount);
+						Delete_clientList(&(p->clist), &pc, amount);
 						printf("\n退票成功！退款金额将在两小时内返回支付账户\n");
 						if (p->wqueue.front != NULL)
 						{
-							update_queue(flight, amount);
+							update_queue(&p, amount);
 						}
 					}
 					else
@@ -611,7 +602,7 @@ int RefundTicket(FlightList* flight)
 					}
 					break;
 				}
-				total = total->next;
+				pc = pc->next;
 			}
 		}
 		p = p->next;
