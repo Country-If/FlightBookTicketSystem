@@ -2,7 +2,7 @@
 #ifndef FlightBookTicketSystem_H_INCLUDED
 #define FlightBookTicketSystem_H_INCLUDED
 
-/* ³£Á¿¶¨Òå */
+/* å¸¸é‡å®šä¹‰ */
 #define MINSIZE 40
 #define MAXSIZE 40
 
@@ -12,45 +12,72 @@ typedef enum Status
 	ok
 }Status;
 
-/* ÒÑ¶©Æ±µÄ¿Í»§Ãûµ¥--ÏßĞÔ±í(Ë«ÏòÁ´±í)ÊµÏÖ */
+/* å·²è®¢ç¥¨çš„å®¢æˆ·åå•--çº¿æ€§è¡¨(åŒå‘é“¾è¡¨)å®ç° */
 typedef struct clientNode
 {
-	char name[MINSIZE];		//ĞÕÃû
-	int amount;		//¶©Æ±Á¿
-	int rank;	 //²ÕÎ»µÈ¼¶1£¬2»ò3
+	char name[MINSIZE];		//å§“å
+	int amount;		//è®¢ç¥¨é‡
+	int rank;	 //èˆ±ä½ç­‰çº§1ï¼Œ2æˆ–3
 	
-	struct clientNode* prior, * next;	//Ö¸ÕëÓò£¬¶ş²æÁ´±í
+	struct clientNode* prior, * next;	//æŒ‡é’ˆåŸŸï¼ŒäºŒå‰é“¾è¡¨
 }clientNode, * clientList;
 
-/* µÈºòÌæ²¹µÄ¿Í»§Ãûµ¥--Á´¶ÓÁĞÊµÏÖ */
+/* ç­‰å€™æ›¿è¡¥çš„å®¢æˆ·åå•--é“¾é˜Ÿåˆ—å®ç° */
 typedef struct waitNode
 {
-	char name[MAXSIZE];		//ĞÕÃû
-	int amount;		//¶©Æ±Á¿
+	char name[MAXSIZE];		//å§“å
+	int amount;		//è®¢ç¥¨é‡
 	
-	struct waitNode* next;		//Ö¸ÕëÓò£¬µ¥ÏòÁ´±í
+	struct waitNode* next;		//æŒ‡é’ˆåŸŸï¼Œå•å‘é“¾è¡¨
 }waitNode, * waitPtr;
 
-//Á´¶ÓÁĞ
+//é“¾é˜Ÿåˆ—
 typedef struct waitQueue
 {
-	waitPtr front;	 //¶ÓÍ·Ö¸Õë
-	waitPtr rear;	 //¶ÓÎ²Ö¸Õë
+	waitPtr front;	 //é˜Ÿå¤´æŒ‡é’ˆ
+	waitPtr rear;	 //é˜Ÿå°¾æŒ‡é’ˆ
 }waitQueue, * waitQueuePtr;
 
-/* º½°à×ÜĞÅÏ¢--ÏßĞÔ±í(´øÍ·½áµãµÄµ¥Á´±í)ÊµÏÖ */
+/* èˆªç­æ€»ä¿¡æ¯--çº¿æ€§è¡¨(å¸¦å¤´ç»“ç‚¹çš„å•é“¾è¡¨)å®ç° */
 typedef struct Flight
 {
-	char destination[MAXSIZE];		//ÖÕµãÕ¾Ãû
-	char flightID[MAXSIZE];		 //º½°àºÅ
-	char planeID[MAXSIZE];		//·É»úºÅ
-	char time[MAXSIZE];		//Æğ·ÉÊ±¼ä
-	int num;	 //³ËÔ±¶¨¶î
-	int tickets;	//ÓàÆ±Á¿
-	clientList clist;	//ÒÑ¶©Æ±µÄ¿Í»§Ãûµ¥(°üÀ¨ĞÕÃû¡¢¶©Æ±Á¿¡¢²ÕÎ»µÈ¼¶1£¬2»ò3)
-	waitQueue wqueue;	//µÈºòÌæ²¹µÄ¿Í»§Ãûµ¥(°üÀ¨ĞÕÃû¡¢ËùĞèÆ±Á¿)
+	char destination[MAXSIZE];		//ç»ˆç‚¹ç«™å
+	char flightID[MAXSIZE];		 //èˆªç­å·
+	char planeID[MAXSIZE];		//é£æœºå·
+	char time[MAXSIZE];		//èµ·é£æ—¶é—´
+	int num;	 //ä¹˜å‘˜å®šé¢
+	int tickets;	//ä½™ç¥¨é‡
+	clientList clist;	//å·²è®¢ç¥¨çš„å®¢æˆ·åå•(åŒ…æ‹¬å§“åã€è®¢ç¥¨é‡ã€èˆ±ä½ç­‰çº§1ï¼Œ2æˆ–3)
+	waitQueue wqueue;	//ç­‰å€™æ›¿è¡¥çš„å®¢æˆ·åå•(åŒ…æ‹¬å§“åã€æ‰€éœ€ç¥¨é‡)
 	
-	struct Flight* next;	//Ö¸ÕëÓò£¬µ¥ÏòÁ´±í
+	struct Flight* next;	//æŒ‡é’ˆåŸŸï¼Œå•å‘é“¾è¡¨
 }Flight, * FlightList;
+
+int judge_int(void);
+clientList Creat_clientNode(char name[MAXSIZE], int amount, int rank);
+Status Insert_clientList(clientList* total, clientList* c);
+Status Delete_clientList(clientList* total, clientList* c, int amount);
+Status Init_waitQueue(waitQueue* q);
+Status En_waitQueue(waitQueue* wqueue, char name[MINSIZE], int amount);
+Status De_waitQueue(waitQueue* wqueue, waitPtr de);
+Status Init_Flight(FlightList* f);
+FlightList Creat_Flight(char* des, char* fid, char* pid, char* time, int num, int tickets);
+Status Insert_Flight(FlightList* f1, FlightList* f2);
+int Delete_Flight(FlightList* f, char* flightID);
+void SearchFlight(FlightList* flight);
+void booking(FlightList* f, int amount);
+int BookTicket(FlightList* flight);
+void booking_wait(FlightList* f, int amount, char* name);
+void update_queue(FlightList* f, int amount);
+int RefundTicket(FlightList* flight);
+void DisplayAllInfo(FlightList flight);
+void addFlight(FlightList* flight);
+void deleteFlight(FlightList* flight);
+void displayClientInfo(FlightList flight);
+Status AdministratorVerify(void);
+void MainMenu(void);
+void UserMenu(void);
+void AdminMenu(void);
+
 
 #endif

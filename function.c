@@ -2,736 +2,815 @@
 #include <stdlib.h>
 #include <string.h>
 #include <Windows.h>
-//#include "FlightBookTicketSystem.h"
+#include "FlightBookTicketSystem.h"
 
-#pragma warning(disable:4996) //visual studio°²È«ĞÔÎÊÌâscanf,getchar
-#pragma warning(disable:6031) //visual studio ·µ»ØÖµ±»ºöÂÔÎÊÌâstrcmp
+#pragma warning(disable:4996) //visual studioå®‰å…¨æ€§é—®é¢˜scanf,getchar
+#pragma warning(disable:6031) //visual studio è¿”å›å€¼è¢«å¿½ç•¥é—®é¢˜strcmp
 
-/* ³õÊ¼»¯(ÒÑ¶©Æ±µÄ¿Í»§Ãûµ¥)Ë«ÏòÁ´±í */
-Status Init_clientList(clientList* c)
+/* é˜²æ­¢ç”¨æˆ·ä¹±è¾“å…¥å…¶ä»–çš„å­—ç¬¦ï¼Œè§„èŒƒç”¨æˆ·è¾“å…¥æ•´æ•° */
+int judge_int(void)
 {
-	*c = (clientList)malloc(sizeof(clientNode));
-	if (*c == NULL)
-	{
-		printf("ÄÚ´æ·ÖÅäÊ§°Ü\n");
-		system("pause");
-		exit(0);
-	}
-	(*c)->prior = NULL;
-	(*c)->next = NULL;
-	return ok;
+    int len, num = 0, arg = 1;
+    char word[10] = { 0 };
+    int m, j = 1, k;
+    while (j)
+    {
+        scanf("%s", word);
+        len = strlen(word);
+        for (m = 0;m < len;m++)
+        {
+            if (word[m] < '0' || word[m]>'9')  //æ£€éªŒæ˜¯å¦æœ‰ä¹±è¾“å…¥å…¶ä»–å­—ç¬¦
+            {
+                printf("è¯·è¾“å…¥æ•´æ•°ï¼š");
+                break;
+            }
+            else
+            {
+                if (m == len - 1)
+                    j = 0;
+            }
+        }
+    }
+    j = len - 1;
+    for (m = 0;m < len;m++)  // å°†å­—ç¬¦é‡æ–°è½¬æ¢ä¸ºæ•°å­—
+    {
+        for (k = 0;k < j;k++)
+            arg *= 10;
+        num += (word[m] - '0') * arg;
+        arg = 1;
+        j--;
+    }
+    return num;
 }
 
-/* ´´½¨¿Í»§¶©µ¥½áµã */
+/* åˆ›å»ºå®¢æˆ·è®¢å•ç»“ç‚¹ */
 clientList Creat_clientNode(char name[MAXSIZE], int amount, int rank)
 {
-	clientList c = NULL;
-	c = (clientList)malloc(sizeof(clientNode));
-	if (c == NULL)
-	{
-		printf("ÄÚ´æ·ÖÅäÊ§°Ü\n");
-		system("pause");
-		exit(0);
-	}
-	strcpy(c->name, name);
-	c->amount = amount;
-	c->rank = rank;
-	c->prior = NULL;
-	c->next = NULL;
-	return c;
+    clientList c = NULL;
+    c = (clientList)malloc(sizeof(clientNode));
+    if (c == NULL)
+    {
+        printf("å†…å­˜åˆ†é…å¤±è´¥\n");
+        system("pause");
+        exit(0);
+    }
+    strcpy(c->name, name);
+    c->amount = amount;
+    c->rank = rank;
+    c->prior = NULL;
+    c->next = NULL;
+    return c;
 }
 
-/* ²åÈë¿Í»§Ãûµ¥µ½×ÜµÄÒÑ¶©Æ±¿Í»§Ãûµ¥ */
+/* æ’å…¥å®¢æˆ·åå•åˆ°æ€»çš„å·²è®¢ç¥¨å®¢æˆ·åå• */
 Status Insert_clientList(clientList* total, clientList* c)
 {
-	clientList ptr = *total;
-	if (c == NULL)
-	{
-		return error;
-	}
-	if (ptr == NULL)
-	{
-		*total = ptr;
-	}
-	else
-	{
-		while (ptr)
-		{
-			if (strcmp(ptr->name, (*c)->name) >= 0) //±È½ÏĞÕÃûË³Ğò£¬²åÈëË³ĞòÎª°´¿Í»§ĞÕÃû´ÓĞ¡µ½´óÅÅĞò
-			{
-				if (ptr->prior == NULL) //±ÈÍ·½áµãĞ¡£¬²åÔÚÍ·½áµãÖ®Ç°
-				{
-					(*c)->next = ptr;
-					ptr->prior = *c;
-					*total = *c;
-					break;
-				}
-				else //²åÔÚÖĞ¼ä
-				{
-					(*c)->prior = ptr->prior;
-					(*c)->next = ptr;
-					(*c)->prior->next = *c;
-					ptr->prior = *c;
-					break;
-				}
-			}
-			else
-			{
-				if (ptr->next == NULL) //±ÈÎ²½áµã´ó£¬²åÔÚÎ²½áµãÖ®ºó
-				{
-					ptr->next = *c;
-					(*c)->prior = ptr;
-					break;
-				}
-			}
-			ptr = ptr->next;
-		}
-	}
-	return ok;
+    clientList ptr = *total;
+    if ((*c) == NULL)
+    {
+        return error;
+    }
+    if (ptr == NULL)
+    {
+        *total = *c;
+    }
+    else
+    {
+        while (ptr)
+        {
+            if (strcmp(ptr->name, (*c)->name) >= 0) //æ¯”è¾ƒå§“åé¡ºåºï¼Œæ’å…¥é¡ºåºä¸ºæŒ‰å®¢æˆ·å§“åä»å°åˆ°å¤§æ’åº
+            {
+                if (ptr->prior == NULL) //æ¯”å¤´ç»“ç‚¹å°ï¼Œæ’åœ¨å¤´ç»“ç‚¹ä¹‹å‰
+                {
+                    (*c)->next = ptr;
+                    ptr->prior = *c;
+                    *total = *c;
+                    break;
+                }
+                else //æ’åœ¨ä¸­é—´
+                {
+                    (*c)->prior = ptr->prior;
+                    (*c)->next = ptr;
+                    (*c)->prior->next = *c;
+                    ptr->prior = *c;
+                    break;
+                }
+            }
+            else
+            {
+                if (ptr->next == NULL) //æ¯”å°¾ç»“ç‚¹å¤§ï¼Œæ’åœ¨å°¾ç»“ç‚¹ä¹‹å
+                {
+                    ptr->next = *c;
+                    (*c)->prior = ptr;
+                    break;
+                }
+            }
+            ptr = ptr->next;
+        }
+    }
+    return ok;
 }
 
-/* É¾³ıº½Ïß×Ü¶©µ¥ÖĞµÄÖ¸¶¨¶©µ¥ */
-Status Delete_clientList(clientList* total, clientList* c)
+/* åˆ é™¤èˆªçº¿æ€»è®¢å•ä¸­çš„æŒ‡å®šè®¢å• */
+Status Delete_clientList(clientList* total, clientList* c, int amount)
 {
-	clientList ptr = *total;
-	if ((*c) == NULL || ptr == NULL)
-	{
-		return error;
-	}
-	if (ptr == *c) //É¾³ı½áµãÎªÍ·½áµã
-	{
-		ptr = ptr->next;
-		*total = ptr;
-		if ((*total) != NULL)
-		{
-			(*total)->prior = NULL;
-		}
-		free(*c);
-	}
-	else
-	{
-		if ((*c)->next != NULL)
-		{
-			(*c)->next->prior = (*c)->prior;
-		}
-		(*c)->prior->next = (*c)->next;
-		free(*c);
-	}
-	return ok;
+    clientList ptr = *total;
+    if ((*c) == NULL || ptr == NULL)
+    {
+        return error;
+    }
+    if ((*c)->amount == amount) //é€€ç¥¨é‡ç­‰äºè®¢ç¥¨é‡
+    {
+        if (ptr == *c) //åˆ é™¤ç»“ç‚¹ä¸ºå¤´ç»“ç‚¹
+        {
+            ptr = ptr->next;
+            *total = ptr;
+            if (*total != NULL)
+            {
+                (*total)->prior = NULL;
+            }
+            free(*c);
+        }
+        else
+        {
+            if ((*c)->next != NULL)
+            {
+                (*c)->next->prior = (*c)->prior;
+            }
+            (*c)->prior->next = (*c)->next;
+            free(*c);
+        }
+    }
+    else //é€€ç¥¨é‡å°äºè®¢ç¥¨é‡
+    {
+        (*c)->amount -= amount;
+    }
+    return ok;
 }
 
-/* ³õÊ¼»¯(ºò²¹¿Í»§Ãûµ¥)Á´¶ÓÁĞ */
-Status Init_waitQueue(waitQueuePtr q)
+/* åˆå§‹åŒ–é˜Ÿåˆ— */
+//Status Init_waitQueue(waitQueue* q)
+//{
+//	q = (waitQueue*)malloc(sizeof(waitQueue));
+//	if (q == NULL)
+//	{
+//		printf("å†…å­˜åˆ†é…å¤±è´¥\n");
+//		system("pause");
+//		exit(0);
+//	}
+//	q->front = NULL;
+//	q->rear = NULL;
+//	return ok;
+//}
+
+/* å…¥é˜Ÿ */
+Status En_waitQueue(waitQueue* wqueue, char name[MINSIZE], int amount)
 {
-	q->front = q->rear = (waitPtr)malloc(sizeof(waitPtr));
-	if (q->front == NULL || q->rear == NULL)
-	{
-		printf("ÄÚ´æ·ÖÅäÊ§°Ü\n");
-		system("pause");
-		exit(0);
-	}
-	q->front->next = q->rear->next = NULL;	//´øÍ·½áµã
-	return ok;
+    waitPtr ptr = (waitPtr)malloc(sizeof(waitNode));
+    if (ptr == NULL)
+    {
+        printf("å†…å­˜åˆ†é…å¤±è´¥\n");
+        system("pause");
+        exit(0);
+    }
+    strcpy(ptr->name, name);
+    ptr->amount = amount;
+    ptr->next = NULL;
+    if (wqueue->front == NULL)
+    {
+        wqueue->front = ptr;
+        wqueue->rear = ptr;
+    }
+    else
+    {
+        wqueue->rear->next = ptr;
+        wqueue->rear = ptr;
+    }
+    return ok;
 }
 
-/* Èë¶Ó */
-Status En_waitQueue(waitQueuePtr wqueue, char name[MINSIZE], int amount)
+/* å‡ºé˜Ÿ */
+Status De_waitQueue(waitQueue* wqueue, waitPtr de)
 {
-	waitPtr ptr = (waitPtr)malloc(sizeof(waitNode));
-	if (ptr == NULL)
-	{
-		printf("ÄÚ´æ·ÖÅäÊ§°Ü\n");
-		system("pause");
-		exit(0);
-	}
-	strcpy(ptr->name, name);
-	ptr->amount = amount;
-	ptr->next = NULL;
-	if (wqueue->front == NULL)
-	{
-		wqueue->front = ptr;
-	}
-	else
-	{
-		wqueue->rear->next = ptr;
-	}
-	wqueue->rear = ptr;
-	return ok;
+    if ((*wqueue).front == NULL)
+    {
+        return error;
+    }
+    waitPtr ph = (waitPtr)malloc(sizeof(waitNode));
+    waitPtr phr = (waitPtr)malloc(sizeof(waitNode));
+    if (ph == NULL || phr == NULL)
+    {
+        printf("å†…å­˜åˆ†é…å¤±è´¥\n");
+        system("pause");
+        exit(0);
+    }
+    ph = wqueue->front;
+    phr = ph->next;
+    if (wqueue->front == wqueue->rear)
+    {
+        wqueue->front = NULL;
+        wqueue->rear = NULL;
+        free(ph);
+        free(phr);
+    }
+    else if (ph == de)
+    {
+        wqueue->front = wqueue->front->next;
+        free(ph);
+        free(phr);
+    }
+    else
+    {
+        while (phr != NULL)
+        {
+
+            if (phr == de)
+            {
+                ph->next = de->next;
+                free(ph);
+                free(phr);
+                break;
+            }
+            phr = phr->next;
+            ph = ph->next;
+        }
+    }
+    return ok;
 }
 
-/* Çó¶ÓÁĞ³¤¶È */
-int Length_queue(waitQueue q)
-{
-	int length = 0;
-	waitPtr ptr = q.front;
-	ptr = ptr->next;
-	while (ptr)
-	{
-		length++;
-		ptr = ptr->next;
-	}
-	return length;
-}
+/* éå†é˜Ÿåˆ— */
 
-/* ³õÊ¼»¯(º½°à×ÜĞÅÏ¢)µ¥Á´±í */
+
+/* åˆå§‹åŒ–(èˆªç­æ€»ä¿¡æ¯)å•é“¾è¡¨ */
 Status Init_Flight(FlightList* f)
 {
-	*f = (FlightList)malloc(sizeof(Flight));
-	if ((*f) == NULL)
-	{
-		printf("ÄÚ´æ·ÖÅäÊ§°Ü\n");
-		system("pause");
-		exit(0);
-	}
-	strcpy((*f)->destination, "");
-	strcpy((*f)->flightID, "");
-	strcpy((*f)->planeID, "");
-	strcpy((*f)->time, "");
-	(*f)->num = 0;
-	(*f)->tickets = 0;
-	(*f)->next = NULL;
-	return ok;
+    *f = (FlightList)malloc(sizeof(Flight));
+    if ((*f) == NULL)
+    {
+        printf("å†…å­˜åˆ†é…å¤±è´¥\n");
+        system("pause");
+        exit(0);
+    }
+    strcpy((*f)->destination, "");
+    strcpy((*f)->flightID, "");
+    strcpy((*f)->planeID, "");
+    strcpy((*f)->time, "");
+    (*f)->num = 0;
+    (*f)->tickets = 0;
+    (*f)->next = NULL;
+    return ok;
 }
 
-/* ´´½¨º½°à½áµã */
+/* åˆ›å»ºèˆªç­ç»“ç‚¹ */
 FlightList Creat_Flight(char* des, char* fid, char* pid, char* time, int num, int tickets)
 {
-	FlightList fl = (FlightList)malloc(sizeof(Flight));
-	if (fl == NULL)
-	{
-		printf("ÄÚ´æ·ÖÅäÊ§°Ü\n");
-		system("pause");
-		exit(0);
-	}
-	strcpy(fl->destination, des);
-	strcpy(fl->flightID, fid);
-	strcpy(fl->planeID, pid);
-	strcpy(fl->time, time);
-	fl->num = num;
-	fl->tickets = tickets;
-	fl->clist = NULL;
-	Init_waitQueue(&(fl->wqueue));
-	fl->next = NULL;
-	return fl;
+    FlightList fl = (FlightList)malloc(sizeof(Flight));
+    if (fl == NULL)
+    {
+        printf("å†…å­˜åˆ†é…å¤±è´¥\n");
+        system("pause");
+        exit(0);
+    }
+    strcpy(fl->destination, des);
+    strcpy(fl->flightID, fid);
+    strcpy(fl->planeID, pid);
+    strcpy(fl->time, time);
+    fl->num = num;
+    fl->tickets = tickets;
+    fl->clist = NULL;
+    //Init_waitQueue(&(fl->wqueue));
+    fl->wqueue.front = NULL;
+    fl->wqueue.rear = NULL;
+    fl->next = NULL;
+    return fl;
 }
 
-/* ²åÈëĞÂµÄº½°à */
+/* æ’å…¥æ–°çš„èˆªç­ */
 Status Insert_Flight(FlightList* f1, FlightList* f2)
 {
-	FlightList p, pr;
-	p = *f1;
-	pr = NULL;
-	if ((*f2) == NULL)
-	{
-		return error;
-	}
-	while (p != NULL)
-	{
-		if ((strcmp(p->destination, "") != 0) && (strcmp(p->destination, (*f2)->destination) >= 0)) //±È½ÏÖÕµãÕ¾ÃûË³Ğò£¬²åÈëË³ĞòÎª°´ÖÕµãÕ¾Ãû´ÓĞ¡µ½´óÅÅĞò
-		{
-			break;
-		}
-		pr = p;
-		p = p->next;
-	}
-	if (pr == NULL)
-	{
-		return error;
-	}
-	pr->next = *f2;
-	(*f2)->next = p;
-	return ok;
+    FlightList p, pr;
+    p = *f1;
+    pr = NULL;
+    if ((*f2) == NULL)
+    {
+        return error;
+    }
+    while (p != NULL)
+    {
+        if ((strcmp(p->destination, "") != 0) && (strcmp(p->destination, (*f2)->destination) >= 0)) //æ¯”è¾ƒç»ˆç‚¹ç«™åé¡ºåºï¼Œæ’å…¥é¡ºåºä¸ºæŒ‰ç»ˆç‚¹ç«™åä»å°åˆ°å¤§æ’åº
+        {
+            break;
+        }
+        pr = p;
+        p = p->next;
+    }
+    if (pr == NULL)
+    {
+        return error;
+    }
+    pr->next = *f2;
+    (*f2)->next = p;
+    return ok;
 }
 
-/* É¾³ıÖ¸¶¨º½°à */
+/* åˆ é™¤æŒ‡å®šèˆªç­ */
 int Delete_Flight(FlightList* f, char* flightID)
 {
-	int flag = 0;
-	FlightList p, pr;
-	p = *f;
-	pr = NULL;
-	if (strcmp(flightID, "") == 0)
-	{
-		return error;
-	}
-	while (p != NULL)
-	{
-		if (strcmp(p->flightID,flightID) == 0)
-		{
-			flag = 1;
-			break;
-		}
-		pr = p;
-		p = p->next;
-	}
-	if (pr == NULL)
-	{
-		return error;
-	}
-	if (flag == 1)
-	{
-		pr->next = p->next;
-		free(p);
-	}
-	return flag;
+    int flag = 0;
+    FlightList p, pr;
+    p = *f;
+    pr = NULL;
+    if (strcmp(flightID, "") == 0)
+    {
+        return error;
+    }
+    while (p != NULL)
+    {
+        if (strcmp(p->flightID, flightID) == 0)
+        {
+            flag = 1;
+            break;
+        }
+        pr = p;
+        p = p->next;
+    }
+    if (pr == NULL)
+    {
+        return error;
+    }
+    if (flag == 1)
+    {
+        pr->next = p->next;
+        free(p);
+    }
+    return flag;
 }
 
-/* ²éÑ¯º½Ïß£¬Êä³ö×î½üÒ»ÌìµÄº½°àĞÅÏ¢ */
+/* æŸ¥è¯¢èˆªçº¿ï¼Œè¾“å‡ºæœ€è¿‘ä¸€å¤©çš„èˆªç­ä¿¡æ¯ */
 void SearchFlight(FlightList* flight)
 {
-	system("cls");
-	printf("\n\n");
-	printf("************************************\n");
-	printf("*      »¶Ó­Ê¹ÓÃº½¿Õ¿ÍÔËÏµÍ³        *\n");
-	printf("*----------------------------------*\n");
-	printf("*       µ±Ç°Îª£º²éÑ¯´°¿Ú           *\n");
-	printf("************************************\n");
-	char destination[MAXSIZE] = { 0 };
-	printf("\nÇëÊäÈëÖÕµãÕ¾Ãû£º");
-	scanf("%s", destination);
-	int flag = 0;
-	FlightList p = *flight;
-	while (p != NULL)
-	{
-		if (strcmp(destination, p->destination) == 0)
-		{
-			printf("²éÕÒ³É¹¦£¡\n×î½üÒ»ÌìµÄº½°àĞÅÏ¢ÈçÏÂ£º\n");
-			printf("|  º½°àºÅ  |-|   »úĞÍ  |-| Æğ·ÉÊ±¼ä |-|  Ê£ÓàÆ±Êı |\n");
-			printf("  %-20s %-22s%-26s%-15d\n", p->flightID, p->planeID, p->time, p->tickets);
-			flag = 1;
-			break;
-		}
-		p = p->next;
-	}
-	if (flag == 0)
-	{
-		printf("²éÕÒÊ§°Ü!\n");
-	}
-	getchar();
-	printf("\nÊäÈëÈÎÒâ¼ü·µ»ØÉÏÒ»½çÃæ......");
-	getchar();
+    system("cls");
+    printf("\n\n");
+    printf("************************************\n");
+    printf("*      æ¬¢è¿ä½¿ç”¨èˆªç©ºå®¢è¿ç³»ç»Ÿ        *\n");
+    printf("*----------------------------------*\n");
+    printf("*       å½“å‰ä¸ºï¼šæŸ¥è¯¢çª—å£           *\n");
+    printf("************************************\n");
+    char destination[MAXSIZE] = { 0 };
+    printf("\nè¯·è¾“å…¥ç»ˆç‚¹ç«™åï¼š");
+    scanf("%s", destination);
+    int flag = 0;
+    FlightList p = *flight;
+    while (p != NULL)
+    {
+        if (strcmp(destination, p->destination) == 0)
+        {
+            printf("æŸ¥æ‰¾æˆåŠŸï¼\næœ€è¿‘ä¸€å¤©çš„èˆªç­ä¿¡æ¯å¦‚ä¸‹ï¼š\n");
+            printf("|  èˆªç­å·  |-|   æœºå‹  |-|     èµ·é£æ—¶é—´      |-|  å‰©ä½™ç¥¨æ•° |\n");
+            printf("    %-14s%-11s%-23s%-10d\n", p->flightID, p->planeID, p->time, p->tickets);
+            flag = 1;
+            break;
+        }
+        p = p->next;
+    }
+    if (flag == 0)
+    {
+        printf("æŸ¥æ‰¾å¤±è´¥!\n");
+    }
+    getchar();
+    printf("\nè¾“å…¥ä»»æ„é”®è¿”å›ä¸Šä¸€ç•Œé¢......");
+    getchar();
+    system("cls");
 }
 
-/* ¶©Æ± */
+/* è®¢ç¥¨ */
 void booking(FlightList* f, int amount)
 {
-	FlightList p = *f;
-	p->tickets -= amount;
-	char name[MAXSIZE] = { 0 };
-	printf("\nÇëÊäÈëÄúµÄÃû×Ö£º");
-	scanf("%s", name);
-	int rank = 0;
-	printf("\nÇëÊäÈë²ÕÎ»µÈ¼¶£º");
-	scanf("%d", &rank);
-	clientList c = Creat_clientNode(name, amount, rank);
-	if (Insert_clientList(&(p->clist), &c))
-	{
-		printf("¶©Æ±³É¹¦\n");
-	}
-	else
-	{
-		printf("¶©Æ±Ê§°Ü\n");
-	}
+    (*f)->tickets -= amount;
+    char name[MAXSIZE] = { 0 };
+    printf("\nè¯·è¾“å…¥æ‚¨çš„åå­—ï¼š");
+    scanf("%s", name);
+    int rank = 0;
+    printf("\nè¯·è¾“å…¥èˆ±ä½ç­‰çº§ï¼š");
+    rank = judge_int();
+    clientList c = Creat_clientNode(name, amount, rank);
+    if (Insert_clientList(&((*f)->clist), &c))
+    {
+        printf("è®¢ç¥¨æˆåŠŸ\n");
+    }
+    else
+    {
+        printf("è®¢ç¥¨å¤±è´¥\n");
+    }
 }
 
-/* ¿Í»§¶©Æ± */
+/* å®¢æˆ·è®¢ç¥¨ */
 int BookTicket(FlightList* flight)
 {
-	system("cls");
-	printf("\n\n");
-	printf("************************************\n");
-	printf("*      »¶Ó­Ê¹ÓÃº½¿Õ¿ÍÔËÏµÍ³        *\n");
-	printf("*----------------------------------*\n");
-	printf("*       µ±Ç°Îª£º¶©Æ±´°¿Ú           *\n");
-	printf("************************************\n");
-	char flightID[MAXSIZE] = { 0 };
-	int amount = 0;
-	printf("\nÇëÊäÈëº½°àºÅ£º");
-	scanf("%s", flightID);
-	printf("\nÇëÊäÈë¶©¹ºµÄÆ±Êı£º");
-	scanf("%d", &amount);
-	FlightList p = *flight;
-	int flag = 0;
-	while (p != NULL)
-	{
-		if (strcmp(flightID, p->flightID) == 0)
-		{
-			flag = 1;
-			if (p->tickets >= amount)
-			{
-				booking(&p,amount);
-			}
-			else if (p->tickets == 0)
-			{
-				printf("\n±§Ç¸£¬±¾ÌËº½°àÒÑÂúÔ±\n");
-				printf("ÇëÎÊÊÇ·ñÌí¼ÓÖÁºò²¹¶ÓÁĞ?(y/n)\n");
-				while (1)
-				{
-					char queuechoice;
-					fflush(stdin);
-					scanf("%c", &queuechoice);
-					if (queuechoice == 'y' || queuechoice == 'Y')
-					{
-						char name[MAXSIZE] = { 0 };
-						printf("\nÇëÊäÈëÄúµÄÃû×Ö£º");
-						scanf("%s", name);
-						if (En_waitQueue(&(p->wqueue), name, amount))
-						{
-							printf("ÒÑÌí¼ÓÖÁºò²¹¶ÓÁĞ\n");
-						}
-						else
-						{
-							printf("Ìí¼ÓÖÁºò²¹¶ÓÁĞÊ§°Ü\n");
-						}
-						break;
-					}
-					else if (queuechoice == 'n' || queuechoice == 'N')
-					{
-						break;
-					}
-					else
-					{
-						printf("ÇëÖØĞÂÊäÈë(y/n)");
-					}
-				}
-			}
-			else if (p->tickets != 0 && p->tickets < amount)
-			{
-				printf("\n±§Ç¸£¬ÓàÆ±²»×ã\n");
-				printf("ÇëÎÊÊÇ·ñÌí¼ÓÖÁºò²¹¶ÓÁĞ?(y/n)\n");
-				while (1)
-				{
-					char queuechoice;
-					fflush(stdin);
-					scanf("%c", &queuechoice);
-					if (queuechoice == 'y' || queuechoice == 'Y')
-					{
-						char name[MAXSIZE] = { 0 };
-						printf("\nÇëÊäÈëÄúµÄÃû×Ö£º");
-						scanf("%s", name);
-						if (En_waitQueue(&(p->wqueue), name, amount))
-						{
-							printf("ÒÑÌí¼ÓÖÁºò²¹¶ÓÁĞ\n");
-						}
-						else
-						{
-							printf("Ìí¼ÓÖÁºò²¹¶ÓÁĞÊ§°Ü\n");
-						}
-						break;
-					}
-					else if (queuechoice == 'n' || queuechoice == 'N')
-					{
-						break;
-					}
-					else
-					{
-						printf("ÇëÖØĞÂÊäÈë(y/n)");
-					}
-				}
-			}
-			break;
-		}
-		p = p->next;
-	}
-	if (flag == 0)
-	{
-		printf("\n²éÑ¯²»µ½¸Ãº½°à£¡Çë·µ»ØÖØĞÂÊäÈë\n");
-	}
-	getchar();
-	printf("\nÊäÈëÈÎÒâ¼ü·µ»ØÉÏÒ»½çÃæ......");
-	getchar();
-	return flag;
+    system("cls");
+    printf("\n\n");
+    printf("************************************\n");
+    printf("*      æ¬¢è¿ä½¿ç”¨èˆªç©ºå®¢è¿ç³»ç»Ÿ        *\n");
+    printf("*----------------------------------*\n");
+    printf("*       å½“å‰ä¸ºï¼šè®¢ç¥¨çª—å£           *\n");
+    printf("************************************\n");
+    char flightID[MAXSIZE] = { 0 };
+    int amount = 0;
+    printf("\nè¯·è¾“å…¥èˆªç­å·ï¼š");
+    scanf("%s", flightID);
+    printf("\nè¯·è¾“å…¥è®¢è´­çš„ç¥¨æ•°ï¼š");
+    amount = judge_int();
+    FlightList p = *flight;
+    int flag = 0;
+    while (p != NULL)
+    {
+        if (strcmp(flightID, p->flightID) == 0)
+        {
+            flag = 1;
+            if (p->tickets >= amount)
+            {
+                booking(&p, amount);
+            }
+            else if (p->tickets == 0)
+            {
+                printf("\næŠ±æ­‰ï¼Œæœ¬è¶Ÿèˆªç­å·²æ»¡å‘˜\n");
+                printf("è¯·é—®æ˜¯å¦æ·»åŠ è‡³å€™è¡¥é˜Ÿåˆ—?(y/n)\n");
+                while (1)
+                {
+                    char queuechoice;
+                    fflush(stdin);
+                    scanf("%c", &queuechoice);
+                    if (queuechoice == 'y' || queuechoice == 'Y')
+                    {
+                        char name[MAXSIZE] = { 0 };
+                        printf("\nè¯·è¾“å…¥æ‚¨çš„åå­—ï¼š");
+                        scanf("%s", name);
+                        if (En_waitQueue(&(p->wqueue), name, amount))
+                        {
+                            printf("å·²æ·»åŠ è‡³å€™è¡¥é˜Ÿåˆ—\n");
+                        }
+                        else
+                        {
+                            printf("æ·»åŠ è‡³å€™è¡¥é˜Ÿåˆ—å¤±è´¥\n");
+                        }
+                        break;
+                    }
+                    else if (queuechoice == 'n' || queuechoice == 'N')
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        printf("è¯·é‡æ–°è¾“å…¥(y/n)");
+                    }
+                }
+            }
+            else if (p->tickets != 0 && p->tickets < amount)
+            {
+                printf("\næŠ±æ­‰ï¼Œä½™ç¥¨ä¸è¶³\n");
+                printf("è¯·é—®æ˜¯å¦æ·»åŠ è‡³å€™è¡¥é˜Ÿåˆ—?(y/n)\n");
+                while (1)
+                {
+                    char queuechoice;
+                    fflush(stdin);
+                    scanf("%c", &queuechoice);
+                    if (queuechoice == 'y' || queuechoice == 'Y')
+                    {
+                        char name[MAXSIZE] = { 0 };
+                        printf("\nè¯·è¾“å…¥æ‚¨çš„åå­—ï¼š");
+                        scanf("%s", name);
+                        if (En_waitQueue(&(p->wqueue), name, amount))
+                        {
+                            printf("å·²æ·»åŠ è‡³å€™è¡¥é˜Ÿåˆ—\n");
+                        }
+                        else
+                        {
+                            printf("æ·»åŠ è‡³å€™è¡¥é˜Ÿåˆ—å¤±è´¥\n");
+                        }
+                        break;
+                    }
+                    else if (queuechoice == 'n' || queuechoice == 'N')
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        printf("è¯·é‡æ–°è¾“å…¥(y/n)");
+                    }
+                }
+            }
+            break;
+        }
+        p = p->next;
+    }
+    if (flag == 0)
+    {
+        printf("\næŸ¥è¯¢ä¸åˆ°è¯¥èˆªç­ï¼è¯·è¿”å›é‡æ–°è¾“å…¥\n");
+    }
+    getchar();
+    printf("\nè¾“å…¥ä»»æ„é”®è¿”å›ä¸Šä¸€ç•Œé¢......");
+    getchar();
+    system("cls");
+    return flag;
 }
 
-/* ¸üĞÂÌæ²¹¶ÓÁĞ */
+/* æ›¿è¡¥è®¢ç¥¨ */
+void booking_wait(FlightList* f, int amount, char* name)
+{
+    FlightList p = *f;
+    p->tickets -= amount;
+    int rank = 0;
+    printf("\nèˆªç­ä¸­æœ‰äººé€€ç¥¨\nè¯·%sè®¢ç¥¨\nè¾“å…¥èˆ±ä½ç­‰çº§ï¼š", name);
+    rank = judge_int();
+    clientList c = Creat_clientNode(name, amount, rank);
+    if (Insert_clientList(&((*f)->clist), &c))
+    {
+        printf("è®¢ç¥¨æˆåŠŸ\n");
+    }
+    else
+    {
+        printf("è®¢ç¥¨å¤±è´¥\n");
+    }
+}
+
+/* æ›´æ–°æ›¿è¡¥é˜Ÿåˆ— */
 void update_queue(FlightList* f, int amount)
 {
-	FlightList pf = *f;
-	waitPtr pw = pf->wqueue.front;
-	pw = pw->next;
-	while (pw != NULL)
-	{
-		if (pw->amount <= amount)
-		{
-			booking(f, amount);
-		}
-		pw = pw->next;
-	}
+    FlightList pf = *f;
+    waitPtr pw = (*f)->wqueue.front;
+    while (pw != NULL)
+    {
+        if (pw->amount <= amount)
+        {
+            int waitamount = pw->amount;
+            char waitname[MAXSIZE] = { 0 };
+            strcpy(waitname, pw->name);
+            De_waitQueue(&((*f)->wqueue), pw);
+            booking_wait(f, waitamount, waitname);
+            break;
+        }
+        pw = pw->next;
+    }
 }
 
-/* ¿Í»§ÍËÆ± */
+/* å®¢æˆ·é€€ç¥¨ */
 int RefundTicket(FlightList* flight)
 {
-	system("cls");
-	printf("\n\n");
-	printf("************************************\n");
-	printf("*      »¶Ó­Ê¹ÓÃº½¿Õ¿ÍÔËÏµÍ³        *\n");
-	printf("*----------------------------------*\n");
-	printf("*       µ±Ç°Îª£ºÍËÆ±´°¿Ú           *\n");
-	printf("************************************\n");
-	char flightID[MAXSIZE] = { 0 };
-	int amount = 0;
-	char name[MAXSIZE] = { 0 };
-	printf("\nÇëÊäÈëÄúµÄÃû×Ö£º");
-	scanf("%s", name);
-	printf("\nÇëÊäÈëº½°àºÅ£º");
-	scanf("%s", flightID);
-	printf("\nÇëÊäÈëÍË¶©µÄÆ±Êı£º");
-	scanf("%d", &amount);
-	FlightList p = *flight;
-	int flag = 0;
-	clientList total = NULL;
-	while (p != NULL)
-	{
-		if (strcmp(p->flightID, flightID) == 0)
-		{
-			total = p->clist;
-			while (p->clist != NULL)
-			{
-				if (strcmp(p->clist->name, name) == 0)
-				{
-					p->tickets += amount;
-					Delete_clientList(&total, &(p->clist));
-					printf("\nÍËÆ±³É¹¦£¡ÍË¿î½ğ¶î½«ÔÚÁ½Ğ¡Ê±ÄÚ·µ»ØÖ§¸¶ÕË»§\n");
-					update_queue(&p, amount);
-					flag = 1;
-					break;
-				}
-				p->clist = p->clist->next;
-			}
-		}
-		p = p->next;
-	}
-	if (flag == 0)
-	{
-		printf("\n²éÑ¯²»µ½¸Ã¶©µ¥£¬ÍËÆ±Ê§°Ü\n");
-	}
-	getchar();
-	printf("\nÊäÈëÈÎÒâ¼ü·µ»ØÉÏÒ»½çÃæ......");
-	getchar();
-	return flag;
+    system("cls");
+    printf("\n\n");
+    printf("************************************\n");
+    printf("*      æ¬¢è¿ä½¿ç”¨èˆªç©ºå®¢è¿ç³»ç»Ÿ        *\n");
+    printf("*----------------------------------*\n");
+    printf("*       å½“å‰ä¸ºï¼šé€€ç¥¨çª—å£           *\n");
+    printf("************************************\n");
+    char flightID[MAXSIZE] = { 0 };
+    int amount = 0;
+    char name[MAXSIZE] = { 0 };
+    printf("\nè¯·è¾“å…¥æ‚¨çš„åå­—ï¼š");
+    scanf("%s", name);
+    printf("\nè¯·è¾“å…¥èˆªç­å·ï¼š");
+    scanf("%s", flightID);
+    printf("\nè¯·è¾“å…¥é€€è®¢çš„ç¥¨æ•°ï¼š");
+    scanf("%d", &amount);
+    FlightList p = *flight;
+    int flag = 0;
+    clientList pc = NULL;
+    while (p != NULL)
+    {
+        if (strcmp(p->flightID, flightID) == 0)
+        {
+            pc = p->clist;
+            while (pc != NULL)
+            {
+                if (strcmp(pc->name, name) == 0)
+                {
+                    flag = 1;
+                    if (pc->amount >= amount) //é€€ç¥¨é‡å°äºè®¢ç¥¨é‡
+                    {
+                        p->tickets += amount;
+                        Delete_clientList(&(p->clist), &pc, amount);
+                        printf("\né€€ç¥¨æˆåŠŸï¼é€€æ¬¾é‡‘é¢å°†åœ¨ä¸¤å°æ—¶å†…è¿”å›æ”¯ä»˜è´¦æˆ·\n");
+                        if (p->wqueue.front != NULL)
+                        {
+                            update_queue(&p, amount);
+                        }
+                    }
+                    else
+                    {
+                        printf("é€€ç¥¨é‡å¤§äºè®¢ç¥¨é‡ï¼\n");
+                        printf("é€€ç¥¨å¤±è´¥\n");
+                    }
+                    break;
+                }
+                pc = pc->next;
+            }
+        }
+        p = p->next;
+    }
+    if (flag == 0)
+    {
+        printf("\næŸ¥è¯¢ä¸åˆ°è¯¥è®¢å•ï¼Œé€€ç¥¨å¤±è´¥\n");
+    }
+    getchar();
+    printf("\nè¾“å…¥ä»»æ„é”®è¿”å›ä¸Šä¸€ç•Œé¢......");
+    getchar();
+    system("cls");
+    return flag;
 }
 
-/* ÏÔÊ¾ËùÓĞº½°àĞÅÏ¢ */
+/* æ˜¾ç¤ºæ‰€æœ‰èˆªç­ä¿¡æ¯ */
 void DisplayAllInfo(FlightList flight)
 {
-	system("cls");
-	printf("\n\n");
-	printf("************************************\n");
-	printf("*      »¶Ó­Ê¹ÓÃº½¿Õ¿ÍÔËÏµÍ³        *\n");
-	printf("*----------------------------------*\n");
-	printf("*       ÒÔÏÂÎªËùÓĞº½°àĞÅÏ¢         *\n");
-	printf("************************************\n");
-	FlightList p = flight;
-	printf("\n|    º½°àºÅ     |-|   ÖÕµãÕ¾  |-|      »úĞÍ      |-|    Æğ·ÉÊ±¼ä   |-|  ¿É³Ë×ø³Ë¿ÍÊı  |-|  Ê£ÓàÆ±Êı  |\n");
-	p = p->next;
-	while (p != NULL)
-	{
-		printf("   %-20s%-10s%-22s%-26s%-15d%-5d\n", p->flightID, p->destination, p->planeID, p->time, p->num, p->tickets);
-		p = p->next;
-	}
-	getchar();
-	printf("\nÊäÈëÈÎÒâ¼ü·µ»ØÉÏÒ»½çÃæ......");
-	getchar();
+    system("cls");
+    printf("\n\n");
+    printf("************************************\n");
+    printf("*      æ¬¢è¿ä½¿ç”¨èˆªç©ºå®¢è¿ç³»ç»Ÿ        *\n");
+    printf("*----------------------------------*\n");
+    printf("*       ä»¥ä¸‹ä¸ºæ‰€æœ‰èˆªç­ä¿¡æ¯         *\n");
+    printf("************************************\n");
+    FlightList p = flight;
+    printf("\n|  èˆªç­å·  |-|   ç»ˆç‚¹ç«™  |-|   æœºå‹    |-|      èµ·é£æ—¶é—´      |-|  å¯ä¹˜åä¹˜å®¢æ•°  |-| å‰©ä½™ç¥¨æ•°  |\n");
+    p = p->next;
+    while (p != NULL)
+    {
+        printf("    %-14s%-13s%-15s%-26s%-15d%-5d\n", p->flightID, p->destination, p->planeID, p->time, p->num, p->tickets);
+        p = p->next;
+    }
+    getchar();
+    printf("\nè¾“å…¥ä»»æ„é”®è¿”å›ä¸Šä¸€ç•Œé¢......");
+    getchar();
+    system("cls");
 }
 
-/* Ìí¼ÓĞÂµÄº½°à */
+/* æ·»åŠ æ–°çš„èˆªç­ */
 void addFlight(FlightList* flight)
 {
-	system("cls");
-	printf("\n\n");
-	printf("************************************\n");
-	printf("*      »¶Ó­½øÈë¹ÜÀíÔ±´°¿Ú          *\n");
-	printf("*----------------------------------*\n");
-	printf("*      µ±Ç°Îª£ºÌí¼Óº½°à´°¿Ú        *\n");
-	printf("************************************\n");
-	char destination[MAXSIZE] = { 0 };
-	char flightID[MAXSIZE] = { 0 };
-	char planeID[MAXSIZE] = { 0 };
-	char time[MAXSIZE] = { 0 };
-	int num = 0;
-	int tickets = 0;
-	printf("\nÇëÊäÈëÖÕµãÕ¾Ãû£º");
-	scanf("%s", destination);
-	printf("\nÇëÊäÈëº½°àºÅ£º");
-	scanf("%s", flightID);
-	printf("\nÇëÊäÈë·É»úºÅ£º");
-	scanf("%s", planeID);
-	printf("\nÇëÊäÈëÆğ·ÉÊ±¼ä(¸ñÊ½Îªyyyy-mm-dd-hh:mm)£º");
-	scanf("%s", time);
-	printf("\nÇëÊäÈë³ËÔ±¶¨¶î£º");
-	scanf("%d", &num);
-	printf("\nÇëÊäÈëÓàÆ±ÊıÁ¿£º");
-	scanf("%d", &tickets);
-	FlightList newFlight = Creat_Flight(destination, flightID, planeID, time, num, tickets);
-	if (Insert_Flight(flight, &newFlight))
-	{
-		printf("\nº½°àÌí¼Ó³É¹¦£¡\n");
-	}
-	getchar();
-	printf("\nÊäÈëÈÎÒâ¼ü·µ»ØÉÏÒ»½çÃæ......");
-	getchar();
+    system("cls");
+    printf("\n\n");
+    printf("************************************\n");
+    printf("*      æ¬¢è¿è¿›å…¥ç®¡ç†å‘˜çª—å£          *\n");
+    printf("*----------------------------------*\n");
+    printf("*      å½“å‰ä¸ºï¼šæ·»åŠ èˆªç­çª—å£        *\n");
+    printf("************************************\n");
+    char destination[MAXSIZE] = { 0 };
+    char flightID[MAXSIZE] = { 0 };
+    char planeID[MAXSIZE] = { 0 };
+    char time[MAXSIZE] = { 0 };
+    int num = 0;
+    int tickets = 0;
+    printf("\nè¯·è¾“å…¥ç»ˆç‚¹ç«™åï¼š");
+    scanf("%s", destination);
+    printf("\nè¯·è¾“å…¥èˆªç­å·ï¼š");
+    scanf("%s", flightID);
+    printf("\nè¯·è¾“å…¥é£æœºå·ï¼š");
+    scanf("%s", planeID);
+    printf("\nè¯·è¾“å…¥èµ·é£æ—¶é—´(æ ¼å¼ä¸ºyyyy-mm-dd-hh:mm)ï¼š");
+    scanf("%s", time);
+    printf("\nè¯·è¾“å…¥ä¹˜å‘˜å®šé¢ï¼š");
+    num = judge_int();
+    printf("\nè¯·è¾“å…¥ä½™ç¥¨æ•°é‡ï¼š");
+    tickets = judge_int();
+    FlightList newFlight = Creat_Flight(destination, flightID, planeID, time, num, tickets);
+    if (Insert_Flight(flight, &newFlight))
+    {
+        printf("\nèˆªç­æ·»åŠ æˆåŠŸï¼\n");
+    }
+    getchar();
+    printf("\nè¾“å…¥ä»»æ„é”®è¿”å›ä¸Šä¸€ç•Œé¢......");
+    getchar();
+    system("cls");
 }
 
-/* É¾³ıÖ¸¶¨º½°à */
+/* åˆ é™¤æŒ‡å®šèˆªç­ */
 void deleteFlight(FlightList* flight)
 {
-	system("cls");
-	printf("\n\n");
-	printf("************************************\n");
-	printf("*      »¶Ó­½øÈë¹ÜÀíÔ±´°¿Ú          *\n");
-	printf("*----------------------------------*\n");
-	printf("*      µ±Ç°Îª£ºÉ¾³ıº½°à´°¿Ú        *\n");
-	printf("************************************\n");
-	char flightID[MAXSIZE] = { 0 };
-	printf("\nÇëÊäÈëº½°àºÅ£º");
-	scanf("%s", flightID);
-	if (Delete_Flight(flight, flightID))
-	{
-		printf("\nº½°àÉ¾³ı³É¹¦£¡\n");
-	}
-	else
-	{
-		printf("\nº½°àÉ¾³ıÊ§°Ü£¡ÇëÊäÈëÏµÍ³´æÔÚµÄº½°àºÅ£¡\n");
-	}
-	getchar();
-	printf("\nÊäÈëÈÎÒâ¼ü·µ»ØÉÏÒ»½çÃæ......");
-	getchar();
+    system("cls");
+    printf("\n\n");
+    printf("************************************\n");
+    printf("*      æ¬¢è¿è¿›å…¥ç®¡ç†å‘˜çª—å£          *\n");
+    printf("*----------------------------------*\n");
+    printf("*      å½“å‰ä¸ºï¼šåˆ é™¤èˆªç­çª—å£        *\n");
+    printf("************************************\n");
+    char flightID[MAXSIZE] = { 0 };
+    printf("\nè¯·è¾“å…¥èˆªç­å·ï¼š");
+    scanf("%s", flightID);
+    if (Delete_Flight(flight, flightID))
+    {
+        printf("\nèˆªç­åˆ é™¤æˆåŠŸï¼\n");
+    }
+    else
+    {
+        printf("\nèˆªç­åˆ é™¤å¤±è´¥ï¼è¯·è¾“å…¥ç³»ç»Ÿå­˜åœ¨çš„èˆªç­å·ï¼\n");
+    }
+    getchar();
+    printf("\nè¾“å…¥ä»»æ„é”®è¿”å›ä¸Šä¸€ç•Œé¢......");
+    getchar();
+    system("cls");
 }
 
-/* ÏÔÊ¾Ö¸¶¨º½ÏßÉÏµÄ¿Í»§¶©µ¥ */
+/* æ˜¾ç¤ºæŒ‡å®šèˆªçº¿ä¸Šçš„å®¢æˆ·è®¢å• */
 void displayClientInfo(FlightList flight)
 {
-	system("cls");
-	printf("\n\n");
-	printf("************************************\n");
-	printf("*      »¶Ó­½øÈë¹ÜÀíÔ±´°¿Ú          *\n");
-	printf("*----------------------------------*\n");
-	printf("*      µ±Ç°Îª£º²é¿´ËùÓĞ¶©µ¥´°¿Ú    *\n");
-	printf("************************************\n");
-	int flag = 0;
-	char flightID[MAXSIZE] = { 0 };
-	printf("\nÇëÊäÈëº½°àºÅ£º");
-	scanf("%s", flightID);
-	FlightList p = flight;
-	while (p != NULL)
-	{
-		if (strcmp(flightID, p->flightID) == 0)
-		{
-			flag = 1;
-			break;
-		}
-		p = p->next;
-	}
-	if (flag == 1)
-	{
-		clientList cp = p->clist;
-		if (cp == NULL)
-		{
-			printf("\n¸Ãº½Ïß¿Í»§¶©µ¥Îª¿Õ\n");
-		}
-		while (cp != NULL)
-		{
-			printf("\n");
-			printf("º½°à£º%s       µÄËùÓĞ¿Í»§Ãûµ¥\n", flightID);
-			printf("\n¿Í»§Ãû×Ö£º%s    ¶©Æ±Êı£º%d    ²ÕÎ»µÈ¼¶£º%d µÈ²Õ", cp->name, cp->amount, cp->rank);
-			cp = cp->next;
-		}
-	}
-	else
-	{
-		printf("\n²éÑ¯²»µ½¸Ãº½°àĞÅÏ¢£¬ÇëÊäÈëÕıÈ·µÄº½°àºÅ£¡");
-	}
-	getchar();
-	printf("\nÊäÈëÈÎÒâ¼ü·µ»ØÉÏÒ»½çÃæ......");
-	getchar();
+    system("cls");
+    printf("\n\n");
+    printf("************************************\n");
+    printf("*      æ¬¢è¿è¿›å…¥ç®¡ç†å‘˜çª—å£          *\n");
+    printf("*----------------------------------*\n");
+    printf("*      å½“å‰ä¸ºï¼šæŸ¥çœ‹æ‰€æœ‰è®¢å•çª—å£    *\n");
+    printf("************************************\n");
+    int flag = 0;
+    char flightID[MAXSIZE] = { 0 };
+    printf("\nè¯·è¾“å…¥èˆªç­å·ï¼š");
+    scanf("%s", flightID);
+    FlightList p = flight;
+    while (p != NULL)
+    {
+        if (strcmp(flightID, p->flightID) == 0)
+        {
+            flag = 1;
+            break;
+        }
+        p = p->next;
+    }
+    if (flag == 1)
+    {
+        clientList cp = p->clist;
+        if (cp == NULL)
+        {
+            printf("\nè¯¥èˆªçº¿å®¢æˆ·è®¢å•ä¸ºç©º\n");
+        }
+        else
+        {
+            printf("èˆªç­ï¼š%s  çš„æ‰€æœ‰å®¢æˆ·åå•\n\n", flightID);
+            while (cp != NULL)
+            {
+                printf("\n");
+                printf("\nå®¢æˆ·åå­—ï¼š%s  è®¢ç¥¨æ•°ï¼š%d   èˆ±ä½ç­‰çº§ï¼š%d ç­‰èˆ±", cp->name, cp->amount, cp->rank);
+                cp = cp->next;
+            }
+        }
+    }
+    else
+    {
+        printf("\næŸ¥è¯¢ä¸åˆ°è¯¥èˆªç­ä¿¡æ¯ï¼Œè¯·è¾“å…¥æ­£ç¡®çš„èˆªç­å·ï¼");
+    }
+    getchar();
+    printf("\n\nè¾“å…¥ä»»æ„é”®è¿”å›ä¸Šä¸€ç•Œé¢......");
+    getchar();
+    system("cls");
 }
 
-/* ¹ÜÀíÔ±ÑéÖ¤ */
-Status AdministratorVerify(void) {
-	char pwd[20] = { "admin" };	//¹ÜÀíÔ±ÃÜÂë
-	char password[20] = { 0 };	//´ıÊäÈëÃÜÂë£¬ÓÃÀ´ÑéÖ¤
-	printf("ÇëÊäÈë¹ÜÀíÔ±ÃÜÂë:\n");
-	scanf("%s", password);
-	if (strcmp(pwd, password)) {
-		printf("ÃÜÂë´íÎó£¬ÇëÖØĞÂÊäÈë:\n");
-		return error;
-	}
-	printf("ÑéÖ¤³É¹¦\n");
-	return ok;
-}
-
-int judge_int(void)  //·ÀÖ¹ÓÃ»§ÂÒÊäÈëÆäËûµÄ×Ö·û£¬¹æ·¶ÓÃ»§ÊäÈëÕûÊı
+/* ç®¡ç†å‘˜éªŒè¯ */
+Status AdministratorVerify(void)
 {
-	int len, num = 0, arg = 1;
-	char word[10] = { 0 };
-	int m, j = 1, k;
-	while (j)
-	{
-		scanf("%s", word);
-		len = strlen(word);
-		for (m = 0;m < len;m++)
-		{
-			if (word[m] < '0' || word[m]>'9')  //¼ìÑéÊÇ·ñÓĞÂÒÊäÈëÆäËû×Ö·û
-			{
-				printf("ÇëÊäÈëÕûÊı£º");
-				break;
-			}
-			else
-			{
-				if (m == len - 1)
-					j = 0;
-			}
-		}
-	}
-	j = len - 1;
-	for (m = 0;m < len;m++)  // ½«×Ö·ûÖØĞÂ×ª»»ÎªÊı×Ö
-	{
-		for (k = 0;k < j;k++)
-			arg *= 10;
-		num += (word[m] - '0') * arg;
-		arg = 1;
-		j--;
-	}
-	return num;
+    char pwd[20] = { "admin" };	//ç®¡ç†å‘˜å¯†ç 
+    char password[20] = { 0 };	//å¾…è¾“å…¥å¯†ç ï¼Œç”¨æ¥éªŒè¯
+    printf("è¯·è¾“å…¥ç®¡ç†å‘˜å¯†ç :\n");
+    scanf("%s", password);
+    if (strcmp(pwd, password)) {
+        printf("å¯†ç é”™è¯¯ï¼Œè¯·é‡æ–°è¾“å…¥:\n");
+        return error;
+    }
+    printf("éªŒè¯æˆåŠŸ\n");
+    return ok;
 }
 
 void MainMenu(void)
 {
-	printf("\n\n");
-	printf("************************************\n");
-	printf("*       »¶Ó­Ê¹ÓÃº½¿Õ¿ÍÔËÏµÍ³       *\n");
-	printf("*----------------------------------*\n");
-	printf("*          0.ÍË³öÏµÍ³              *\n");
-	printf("*          1.ÓÃ»§½çÃæ              *\n");
-	printf("*          2.¹ÜÀíÔ±½çÃæ            *\n");
-	printf("************************************\n");
+    printf("\n\n");
+    printf("************************************\n");
+    printf("*       æ¬¢è¿ä½¿ç”¨èˆªç©ºå®¢è¿ç³»ç»Ÿ       *\n");
+    printf("*----------------------------------*\n");
+    printf("*          0.é€€å‡ºç³»ç»Ÿ              *\n");
+    printf("*          1.ç”¨æˆ·ç•Œé¢              *\n");
+    printf("*          2.ç®¡ç†å‘˜ç•Œé¢            *\n");
+    printf("************************************\n");
 }
 
 void UserMenu(void)
 {
-	printf("\n\n");
-	printf("************************************\n");
-	printf("*       »¶Ó­Ê¹ÓÃº½¿Õ¿ÍÔËÏµÍ³       *\n");
-	printf("*----------------------------------*\n");
-	printf("*          0.·µ»ØÉÏÒ»¼¶            *\n");
-	printf("*          1.²éÑ¯º½Ïß              *\n");
-	printf("*          2.¶©¹º»úÆ±              *\n");
-	printf("*          3.ÍË¶©»úÆ±              *\n");
-	printf("*          4.²é¿´ËùÓĞº½°à          *\n");
-	printf("************************************\n");
+    printf("\n\n");
+    printf("************************************\n");
+    printf("*       æ¬¢è¿ä½¿ç”¨èˆªç©ºå®¢è¿ç³»ç»Ÿ       *\n");
+    printf("*----------------------------------*\n");
+    printf("*          0.è¿”å›ä¸Šä¸€çº§            *\n");
+    printf("*          1.æŸ¥è¯¢èˆªçº¿              *\n");
+    printf("*          2.è®¢è´­æœºç¥¨              *\n");
+    printf("*          3.é€€è®¢æœºç¥¨              *\n");
+    printf("*          4.æŸ¥çœ‹æ‰€æœ‰èˆªç­          *\n");
+    printf("************************************\n");
 }
 
 void AdminMenu(void)
 {
-	printf("\n\n");
-	printf("************************************\n");
-	printf("*       »¶Ó­Ê¹ÓÃº½¿Õ¿ÍÔËÏµÍ³       *\n");
-	printf("*----------------------------------*\n");
-	printf("*          0.·µ»ØÉÏÒ»¼¶            *\n");
-	printf("*          1.Ìí¼Óº½Ïß              *\n");
-	printf("*          2.É¾³ıº½°à              *\n");
-	printf("*          3.²é¿´º½ÏßËùÓĞ¶©µ¥      *\n");
-	printf("*          4.²é¿´ËùÓĞº½°à          *\n");
-	printf("************************************\n");
+    printf("\n\n");
+    printf("************************************\n");
+    printf("*         æ¬¢è¿è¿›å…¥ç®¡ç†å‘˜ç³»ç»Ÿ       *\n");
+    printf("*----------------------------------*\n");
+    printf("*          0.è¿”å›ä¸Šä¸€çº§            *\n");
+    printf("*          1.æ·»åŠ èˆªçº¿              *\n");
+    printf("*          2.åˆ é™¤èˆªç­              *\n");
+    printf("*          3.æŸ¥çœ‹èˆªçº¿æ‰€æœ‰è®¢å•      *\n");
+    printf("*          4.æŸ¥çœ‹æ‰€æœ‰èˆªç­          *\n");
+    printf("************************************\n");
 }
