@@ -111,7 +111,6 @@ int main(void)
 	free(f1);
 	free(f2);
 	printf("\n\n\t\t感谢使用航空客运订票系统！\n\n\n");
-	printf("\n\n\n\n\t\t班级：19级信安1班\n\n\t\t姓名：徐国涛\n\n\t\t学号：3119005436\n\n\n\n\n\n\n\n\n");
 	system("pause");
 	return 0;
 }
